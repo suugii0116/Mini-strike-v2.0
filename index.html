@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chroma Squads - Strike</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <div id="flash-overlay"></div>
+    
+    <div id="ui">
+      <div id="crosshair"></div>
+      <div id="hud-top">
+        <div id="health-bar-container">
+           <div id="health-bar"></div>
+           <div id="health-text">100%</div>
+        </div>
+        <div id="score-display" style="display:flex; gap: 30px;">
+           <span style="color:#00e5ff">CT (CYAN): <span id="score-cyan">0</span></span>
+           <span style="color:#ff0055">T (MAGENTA): <span id="score-magenta">0</span></span>
+        </div>
+        <div id="weapon-display" style="color: white; font-size: 24px; font-weight: bold; background: rgba(0,0,0,0.5); padding: 5px 15px; border: 2px solid white; border-radius: 5px;">
+           WEAPON: <span id="weapon-name">RIFLE</span>
+        </div>
+      </div>
+
+      <div id="bomb-status" style="display:none; position:absolute; top: 80px; left: 50%; transform: translateX(-50%); font-size: 24px; font-weight: bold; color: yellow; text-shadow: 0 0 10px red;">
+        BOMB PLANTED
+      </div>
+      
+      <div id="action-progress" style="display:none; position:absolute; bottom: 100px; left: 50%; transform: translateX(-50%); width: 300px; height: 20px; background: rgba(0,0,0,0.5); border: 2px solid white;">
+        <div id="action-bar" style="width: 0%; height: 100%; background: white;"></div>
+        <div id="action-text" style="position: absolute; top:0; left:0; width:100%; text-align:center; color:white; font-size:14px; font-weight:bold;">PLANTING...</div>
+      </div>
+
+      <div id="team-selection">
+        <h1>CHOOSE YOUR TEAM</h1>
+        <p>You will fight alongside your chosen squad against the rival faction.</p>
+        <div class="team-buttons">
+          <button id="btn-cyan" class="team-btn cyan-btn">JOIN CT (CYAN)</button>
+          <button id="btn-magenta" class="team-btn magenta-btn">JOIN T (MAGENTA)</button>
+        </div>
+      </div>
+
+      <div id="instructions" style="display:none;">
+        <h1>GAME PAUSED</h1>
+        <p>Click Screen to Resume</p>
+        <p><strong>WASD</strong>: Move | <strong>Space</strong>: Jump</p>
+        <p><strong>Left Click</strong>: Fire Tracer Bullets</p>
+        <p><strong>1, 2, 3</strong>: Switch Weapons (Pistol, Rifle, Sniper)</p>
+        <p><strong>Hold E</strong>: Plant/Defuse Bomb in Bomb Sites (Green Boxes)</p>
+        <p>Support your team to win the endless war! Watch for enemy fire.</p>
+      </div>
+
+      <div id="game-over" style="display: none;">
+        <h1>YOU DIED</h1>
+        <p>Click Screen or Press Ctrl+R to Restart</p>
+      </div>
+    </div>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
