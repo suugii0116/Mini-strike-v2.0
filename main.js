@@ -72,8 +72,8 @@ let isHoldingE = false;
 let actionType = null; // 'plant' or 'defuse'
 
 const bombSites = [
-    { pos: new THREE.Vector3(50, 0, 50), radius: 15 },
-    { pos: new THREE.Vector3(-50, 0, -50), radius: 15 }
+    { pos: new THREE.Vector3(40, 0, -40), radius: 12, name: 'A' },
+    { pos: new THREE.Vector3(-40, 0, -40), radius: 12, name: 'B' }
 ];
 
 socket.on('bot_shot', (data) => {
@@ -95,7 +95,7 @@ socket.on('bomb_planted', (pos) => {
     bombPlanted = true;
     bombPos = pos;
     uiBombStatus.style.display = 'block';
-    uiBombStatus.innerText = 'BOMB PLANTED';
+    uiBombStatus.innerText = 'C4 PLANTED';
     
     if(!bombMesh) {
         bombMesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({color: 'red', emissive: 'red', emissiveIntensity: 0.5}));
@@ -108,7 +108,7 @@ socket.on('bomb_planted', (pos) => {
 socket.on('bomb_defused', () => {
     bombPlanted = false;
     uiBombStatus.style.display = 'block';
-    uiBombStatus.innerText = 'BOMB DEFUSED - CT WIN';
+    uiBombStatus.innerText = 'C4 DEFUSED - CT WIN';
     uiBombStatus.style.color = '#00e5ff';
     if(bombMesh) { scene.remove(bombMesh); bombMesh = null; }
 });
@@ -116,7 +116,7 @@ socket.on('bomb_defused', () => {
 socket.on('bomb_exploded', () => {
     bombPlanted = false;
     uiBombStatus.style.display = 'block';
-    uiBombStatus.innerText = 'BOMB EXPLODED - T WIN';
+    uiBombStatus.innerText = 'C4 EXPLODED - T WIN';
     uiBombStatus.style.color = '#ff0055';
     if(bombMesh) {
         spawnExplosion(bombMesh.position, '#ff5500', 100);
@@ -282,6 +282,22 @@ floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
 
+function createTextSprite(message, color) {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = 256;
+    canvas.height = 128;
+    context.font = "Bold 60px Arial";
+    context.fillStyle = color;
+    context.textAlign = "center";
+    context.fillText(message, 128, 90);
+    const texture = new THREE.CanvasTexture(canvas);
+    const spriteMaterial = new THREE.SpriteMaterial({ map: texture, depthTest: false });
+    const sprite = new THREE.Sprite(spriteMaterial);
+    sprite.scale.set(8, 4, 1);
+    return sprite;
+}
+
 // Bomb Sites visuals
 bombSites.forEach((site, index) => {
     const siteGeo = new THREE.CylinderGeometry(site.radius, site.radius, 0.1, 32);
@@ -296,37 +312,35 @@ bombSites.forEach((site, index) => {
     markerBox.position.set(site.pos.x, 2, site.pos.z);
     markerBox.castShadow = true;
     scene.add(markerBox);
+
+    const sprite = createTextSprite("SITE " + site.name, "#00ff00");
+    sprite.position.set(site.pos.x, 7, site.pos.z);
+    scene.add(sprite);
 });
 
 const collidables = [];
 const wallGeo = new THREE.BoxGeometry(10, 8, 2);
-const wallMat = new THREE.MeshStandardMaterial({color: '#c6b497', roughness: 0.9}); 
+const wallMat = new THREE.MeshStandardMaterial({color: '#bda889', roughness: 0.9}); // CS Dust colors
 const crateGeo = new THREE.BoxGeometry(4, 4, 4);
 const crateMat = new THREE.MeshStandardMaterial({color: '#8b7355', roughness: 0.9}); 
 
 // Build structured grid arena
 const mapGrid = [
-    "WWWWWWWWWWWWWWWWWWWWW",
-    "W.........W.........W",
-    "W..C......W......C..W",
-    "W...WWWW..W..WWWW...W",
-    "W......C.....C......W",
-    "W...................W",
-    "W......W...W........W",
-    "W..C...W...W...C....W",
-    "W......W...W........W",
-    "WWWWW..W.C.W..WWWWWWW",
-    "W...................W",
-    "WWWWW..W...W..WWWWWWW",
-    "W......W...W........W",
-    "W..C...W...W...C....W",
-    "W......W...W........W",
-    "W...................W",
-    "W......C.....C......W",
-    "W...WWWW..W..WWWW...W",
-    "W..C......W......C..W",
-    "W.........W.........W",
-    "WWWWWWWWWWWWWWWWWWWWW"
+    "WWWWWWWWWWWWWWW",
+    "W.C.......C...W",
+    "W.WWW.WWW.WWW.W",
+    "W.............W",
+    "W.WW..C...WW..W",
+    "W.W...WWW...W.W",
+    "W.....W.W.....W",
+    "WWWW..C.C..WWWW",
+    "W.....W.W.....W",
+    "W.W...WWW...W.W",
+    "W.WW...C..WW..W",
+    "W.............W",
+    "W.WWW.WWW.WWW.W",
+    "W...C.......C.W",
+    "WWWWWWWWWWWWWWW"
 ];
 
 for(let z=0; z<mapGrid.length; z++) {
@@ -335,7 +349,7 @@ for(let z=0; z<mapGrid.length; z++) {
         if(type === 'W' || type === 'C') {
             const isW = type === 'W';
             const mesh = new THREE.Mesh(isW ? wallGeo : crateGeo, isW ? wallMat : crateMat);
-            mesh.position.set((x - 10) * 10, isW ? 4 : 2, (z - 10) * 10);
+            mesh.position.set((x - 7) * 10, isW ? 4 : 2, (z - 7) * 10);
             mesh.castShadow = true;
             mesh.receiveShadow = true;
             scene.add(mesh);
@@ -368,8 +382,8 @@ scene.add(controls.getObject());
 
 // Spawn points based on team
 function getSpawnPoint(team) {
-    if (team === 0) return new THREE.Vector3(-50, 2, -90); // CT spawn (x:5, z:1)
-    if (team === 1) return new THREE.Vector3(-50, 2, 90);  // T spawn (x:5, z:19)
+    if (team === 0) return new THREE.Vector3(0, 2, -60); // CT spawn (closer to sites)
+    if (team === 1) return new THREE.Vector3(0, 2, 60);  // T spawn
     return new THREE.Vector3(0, 2, 0); // Center is open
 }
 camera.position.copy(getSpawnPoint(-1));
@@ -728,10 +742,10 @@ function animate() {
             canJump = true;
         }
         
-        if(camera.position.x > 240) camera.position.x = 240;
-        if(camera.position.x < -240) camera.position.x = -240;
-        if(camera.position.z > 240) camera.position.z = 240;
-        if(camera.position.z < -240) camera.position.z = -240;
+        if(camera.position.x > 80) camera.position.x = 80;
+        if(camera.position.x < -80) camera.position.x = -80;
+        if(camera.position.z > 80) camera.position.z = 80;
+        if(camera.position.z < -80) camera.position.z = -80;
         
         const isMoving = (Math.abs(velocity.x) > 1 || Math.abs(velocity.z) > 1);
         if(isMoving && canJump) {
@@ -776,7 +790,7 @@ function animate() {
                 actionProgress = 0;
             }
             uiActionProgress.style.display = 'block';
-            uiActionText.innerText = currentAction === 'plant' ? 'PLANTING BOMB...' : 'DEFUSING BOMB...';
+            uiActionText.innerText = currentAction === 'plant' ? 'PLANTING C4...' : 'DEFUSING C4...';
             
             const timeRequired = currentAction === 'plant' ? 3.0 : 5.0;
             actionProgress += delta / timeRequired;
